@@ -49,7 +49,44 @@ class _NotesHomePageState extends State<NotesHomePage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(data[index].title.toString()),
+                      Row(
+                        children: [
+                          Text(
+                            data[index].title.toString(),
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Spacer(),
+                          InkWell(
+                            onTap: () {
+                              delete(data[index]);
+                            },
+                            child: const Icon(
+                              Icons.delete_forever,
+                              color: Colors.red,
+                            ),
+                          ),
+                          const SizedBox(
+                            width: 15,
+                          ),
+                          //edit
+                          InkWell(
+                            onTap: () {
+                              _editNotes(
+                                  data[index],
+                                  data[index].title.toString(),
+                                  data[index].description.toString());
+                            },
+                            child: const Icon(
+                              Icons.edit,
+                              color: Colors.indigo,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Text(data[index].title.toString()),
                       Text(data[index].description.toString()),
                     ],
                   ),
@@ -65,6 +102,72 @@ class _NotesHomePageState extends State<NotesHomePage> {
         },
         child: const Icon(Icons.add),
       ),
+    );
+  }
+
+  //delete fun
+  void delete(NotesModel notesModel) async {
+    await notesModel.delete();
+  }
+
+  //delete fun
+  void edit(NotesModel notesModel) async {
+    await notesModel.delete();
+  }
+
+  //edit
+  Future<void> _editNotes(
+      NotesModel notesModel, String title, String descripition) async {
+    _titleController.text = title.toString();
+    _descController.text = descripition.toString();
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Edit Notes'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextFormField(
+                  controller: _titleController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter Title',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                //
+                const SizedBox(
+                  height: 15,
+                ),
+                TextFormField(
+                  controller: _descController,
+                  decoration: const InputDecoration(
+                    hintText: 'Enter Description',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                notesModel.title = _titleController.text.toString();
+                notesModel.description = _descController.text.toString();
+                notesModel.save();
+                Navigator.pop(context);
+              },
+              child: const Text('Edit'),
+            ),
+          ],
+        );
+      },
     );
   }
 
