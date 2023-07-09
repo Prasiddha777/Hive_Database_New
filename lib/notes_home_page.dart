@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+// import 'package:hive_flutter/adapters.dart';
 import 'package:hive_todo/boxes/boxes.dart';
 import 'package:hive_todo/models/notes_model.dart';
+//hive_flutter make listenable
+import 'package:hive_flutter/hive_flutter.dart';
 
 class NotesHomePage extends StatefulWidget {
   const NotesHomePage({super.key});
@@ -11,8 +14,8 @@ class NotesHomePage extends StatefulWidget {
 
 class _NotesHomePageState extends State<NotesHomePage> {
   //final controller
-  TextEditingController _titleController = TextEditingController();
-  TextEditingController _descController = TextEditingController();
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +29,35 @@ class _NotesHomePageState extends State<NotesHomePage> {
             color: Colors.white,
           ),
         ),
+      ),
+      body: ValueListenableBuilder<Box<NotesModel>>(
+        //listenable listens value in real time,
+        valueListenable: Boxes.getData().listenable(),
+        builder: (context, value, child) {
+          return ListView.builder(
+            itemCount: value.length,
+            itemBuilder: (context, index) {
+              //converting data to list form
+              var data = value.values.toList().cast<NotesModel>();
+              return Card(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 15,
+                    horizontal: 10,
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(data[index].title.toString()),
+                      Text(data[index].description.toString()),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -80,6 +112,7 @@ class _NotesHomePageState extends State<NotesHomePage> {
                     title: _titleController.text,
                     description: _descController.text);
                 final box = Boxes.getData();
+                //adding data
                 box.add(data);
                 //yo save garnu mildena yedi extends garey xaena vani
                 data.save();
